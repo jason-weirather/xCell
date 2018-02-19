@@ -25,7 +25,8 @@ def xCell(expression_df,
          verbose=False,
          tempdir= None,
          beta_pval=False,
-         perm_pval=False
+         perm_pval=False,
+         matrix=False
          ):
     """xCell function for use with pandas DataFrame objects
 
@@ -39,6 +40,7 @@ def xCell(expression_df,
     :type tempdir: string Default: System Default
     :returns: pandas.DataFrame
     """
+    if matrix and (beta_pval or perm_pval): raise ValueError("can't return pvalues as a matrix")
     df = expression_df
 
     if not tempdir:
@@ -77,6 +79,7 @@ def xCell(expression_df,
     if verbose: sys.stderr.write("finished R script\n")
     output1 = pd.read_csv(os.path.join(tempdir,"pathways.csv"),index_col=0)
     output1.index.name = 'name'
+    if matrix: return output1
     df = output1.unstack().reset_index().rename(columns={0:'score','level_0':'sample'})
 
     if beta_pval:
@@ -106,7 +109,7 @@ def __cli():
     else:
         df = pd.read_csv(args.input,index_col=0)
     gmt = gmt_to_dataframe(args.gmt)
-    result = xCellAnalysis(df,
+    result = xCell(df,
                   rnaseq=args.rnaseq,
                   scale=args.scale,
                   alpha=args.alpha,
@@ -115,7 +118,8 @@ def __cli():
                   verbose=args.verbose,
                   tempdir=args.tempdir,
                   beta_pval=args.beta_pval,
-                  perm_pval=args.perm_pval
+                  perm_pval=args.perm_pval,
+                  matrix=args.matrix
                  )
     sep = ','
     if args.tsv_out: sep = "\t"
@@ -135,14 +139,16 @@ def __do_inputs():
     group0.add_argument('input',help="Use - for STDIN")
     group0.add_argument('--tsv_in',action='store_true',help="Exepct CSV by default, this overrides to tab")
 
-    group4 = parser.add_argument_group("Add pvalue calculations")
-    group4.add_argument('--beta_pval',action='store_true',description="output the beta pvalue")
-    group4.add_argument('--perm_pval',action='store_true',description="output the random permutation pvalue")
 
     group2 = parser.add_argument_group('Output options')
     group2.add_argument('--tsv_out',action='store_true',help="Override the default CSV and output TSV")
     group2.add_argument('--output','-o',help="Specifiy path to write transformed data")
     group2.add_argument('--meta_output',help="Speciify path to output additional run information")
+    group2.add_argument('--matrix',action='store_true',help="Output results as a matrix")
+
+    group4 = parser.add_argument_group("Add pvalue calculations")
+    group4.add_argument('--beta_pval',action='store_true',description="output the beta pvalue")
+    group4.add_argument('--perm_pval',action='store_true',description="output the random permutation pvalue")
 
     group1 = parser.add_argument_group('command options')
     parallel_sz_str = '''
@@ -184,6 +190,7 @@ Number of random resamplings.
 
 
     args = parser.parse_args()
+    if args.matrix and (args.beta_pval or args.perm_pval): raise ValueError("can't return pvalues in a matrix.")
     setup_tempdir(args)
     return args  
 
