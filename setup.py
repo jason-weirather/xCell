@@ -11,7 +11,7 @@ with open(path.join(this_folder,'README.md'),encoding='utf-8') as inf:
   long_description = inf.read()
 
 setup(
-  name='xcell-py',
+  name='xcell',
   version='1.1.0.0',
   description='Python CLI and module for running the xCell package with Python Pandas inputs and outputs.',
   long_description=long_description,
@@ -26,9 +26,9 @@ setup(
     'License :: OSI Approved :: Apache Software License'
   ],
   keywords='bioinformatics, R, enrichment, xCell, ssGSEA, microenvironment, RNAseq, immune infiltrates',
-  packages=['xcellpy'
+  packages=['xcell'
            ],
-  package_data={'xcellpy':['*.r']},
+  package_data={'xcell':['*.r']},
   install_requires=['pandas'],
   entry_points = {
     'console_scripts':['xCell=xcellpy:__cli']
