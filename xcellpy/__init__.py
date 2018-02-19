@@ -108,7 +108,6 @@ def __cli():
         df = pd.read_csv(args.input,sep="\t",index_col=0)
     else:
         df = pd.read_csv(args.input,index_col=0)
-    gmt = gmt_to_dataframe(args.gmt)
     result = xCell(df,
                   rnaseq=args.rnaseq,
                   scale=args.scale,
@@ -122,11 +121,13 @@ def __cli():
                   matrix=args.matrix
                  )
     sep = ','
+    use_index = False
+    if args.matrix: use_index = True
     if args.tsv_out: sep = "\t"
     if args.output:
-        result.to_csv(args.output,sep=sep)
+        result.to_csv(args.output,sep=sep,index=use_index)
     else:
-        result.to_csv(os.path.join(args.tempdir,'final.csv'),sep=sep)
+        result.to_csv(os.path.join(args.tempdir,'final.csv'),sep=sep,index=use_index)
         with open(os.path.join(args.tempdir,'final.csv')) as inf:
             for line in inf:
                 sys.stdout.write(line)
@@ -146,9 +147,9 @@ def __do_inputs():
     group2.add_argument('--meta_output',help="Speciify path to output additional run information")
     group2.add_argument('--matrix',action='store_true',help="Output results as a matrix")
 
-    group4 = parser.add_argument_group("Add pvalue calculations")
-    group4.add_argument('--beta_pval',action='store_true',description="output the beta pvalue")
-    group4.add_argument('--perm_pval',action='store_true',description="output the random permutation pvalue")
+    group4 = parser.add_argument_group("Add pvalue calculations. Cannot output as matrix. These will be added as columns to the DataFrame")
+    group4.add_argument('--beta_pval',action='store_true',help="output the beta pvalue")
+    group4.add_argument('--perm_pval',action='store_true',help="output the random permutation pvalue")
 
     group1 = parser.add_argument_group('command options')
     parallel_sz_str = '''
