@@ -75,7 +75,7 @@ def xCell(expression_df,
     sp = Popen(cmd,stdout=PIPE,stderr=PIPE)
     if not verbose: sp.communicate()
     else:
-        for line in sp.stderr: sys.stderr.write(line)
+        for line in sp.stderr: sys.stderr.write(line.decode('utf-8'))
     if verbose: sys.stderr.write("finished R script\n")
     output1 = pd.read_csv(os.path.join(tempdir,"pathways.csv"),index_col=0)
     output1.index.name = 'name'

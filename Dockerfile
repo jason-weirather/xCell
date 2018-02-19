@@ -1,5 +1,8 @@
-# xCell-py Python module and CLI for xCell
-# cite: 
+# xCell Python module and CLI for xCell
+# This is a wraper of xCell for CLI and python module use
+#    for the official xCell R distribution see
+#    https://github.com/dviraran/xCell
+# If used cite: 
 #   Aran D, Hu Z, Butte AJ. xCell: digitally portraying the tissue cellular
 #   heterogeneity landscape. Genome Biol. 2017 Nov 15;18(1):220. doi:
 #   10.1186/s13059-017-1349-1. PubMed PMID: 29141660; PubMed Central PMCID:
@@ -35,11 +38,13 @@ RUN add-apt-repository ppa:jonathonf/python-3.6 && \
                        python3-pip
 
 RUN Rscript -e 'source("http://bioconductor.org/biocLite.R");library(BiocInstaller);biocLite(pkgs=c("GSEABase"),dep=TRUE)'
-RUN Rscript -e 'devtools::install("https://github.com/jason-weirather/R-xCell")'
+
+RUN apt-get install -y libssl-dev libssh2-1-dev && \
+    Rscript -e 'install.packages("devtools",repos = "http://cran.us.r-project.org")' && \
+    Rscript -e 'library(devtools);devtools::install_github("jason-weirather/R-xCell")'
 
 RUN pip3 install --upgrade pip
-RUN pip3 install xCell-py==1.1.0.0
+RUN pip3 install xcell==1.1.0.0
 
 ENV HOME /root
 WORKDIR /root
-
