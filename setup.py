@@ -31,7 +31,7 @@ setup(
   package_data={'xcell':['*.r']},
   install_requires=['pandas'],
   entry_points = {
-    'console_scripts':['xCell=xcellpy:__cli']
+    'console_scripts':['xcell=xcell:__cli']
   }
 )
 
